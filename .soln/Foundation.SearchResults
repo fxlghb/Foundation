@@ -1,0 +1,7 @@
+---- strerror Matches (6 in 2 files) ----
+Mutex.cpp (unix\thread):                printf("pthread_mutex_init fail ret[%d] error[%s]\n",ret,strerror(errno));
+Mutex.cpp (unix\thread):                printf("pthread_mutexattr_init fail ret[%d] error[%s]\n",ret,strerror(errno));
+Mutex.cpp (unix\thread):                printf("pthread_mutexattr_settype fail ret[%d] error[%s]\n",ret,strerror(errno));
+Mutex.cpp (unix\thread):                printf("pthread_mutex_init fail ret[%d] error[%s]\n",ret,strerror(errno));
+Mutex.cpp (unix\thread):                printf("pthread_mutex_init fail ret[%d] error[%s]\n",ret,strerror(errno));
+netOri.cpp (unix\net):		printf("setsockopt eorror %s \n",strerror(errno));

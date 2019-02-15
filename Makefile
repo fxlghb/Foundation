@@ -6,66 +6,59 @@
 #
 ############################################################################
 
-TOPDIR  = $(shell pwd)
+TARGET := test
+ 
+CC := g++ 
+ 
+#注意每行后面不要有空格，否则会算到目录名里面，导致问题
+SRC_DIR = ./
+BUILD_DIR = tmp
+OBJ_DIR = $(BUILD_DIR)/obj
+DEPS_DIR  = $(BUILD_DIR)/deps
+ 
+#这里添加其他头文件路径
+INC_DIR = \
+	-I./include \
+	
+#这里添加编译参数
+CC_FLAGS := $(INC_DIR) -g -std=c++11
+LNK_FLAGS := \
+	-L/usr/local/lib 
+ 
+#这里递归遍历3级子目录
+DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
+ 
+#将每个子目录添加到搜索路径
+VPATH = $(DIRS)
+ 
+#查找src_dir下面包含子目录的所有cpp文件
+SOURCES   = $(foreach dir, $(DIRS), $(wildcard $(dir)/*.cpp))  
+OBJS   = $(addprefix $(OBJ_DIR)/,$(patsubst %.cpp,%.o,$(notdir $(SOURCES))))  
+DEPS  = $(addprefix $(DEPS_DIR)/, $(patsubst %.cpp,%.d,$(notdir $(SOURCES))))  
+$(TARGET):$(OBJS)
+	@$(CC) $^ $(LNK_FLAGS) -o $@ -lpthread
+	
+#编译之前要创建OBJ目录，确保目录存在
+$(OBJ_DIR)/%.o:%.cpp
+	@if [ ! -d $(OBJ_DIR) ]; then mkdir -p $(OBJ_DIR); fi;
+	$(CC) -c $(CC_FLAGS) -o $@ $<
+
+	
+#编译之前要创建DEPS目录，确保目录存在
+#前面加@表示隐藏命令的执行打印
+$(DEPS_DIR)/%.d:%.cpp
+	@if [ ! -d $(DEPS_DIR) ]; then mkdir -p $(DEPS_DIR); fi;\
+	set -e; rm -f $@;\
+	$(CC) -MM $(CC_FLAGS) $< > $@.$$$$;\
+	sed 's,\($*\)\.o[ :]*,$(OBJ_DIR)/\1.o $@ : ,g' < $@.$$$$ > $@;\
+	rm -f $@.$$$$
+#前面加-表示忽略错误
+-include $(DEPS)
 
 
-#//1. 路径搜索
-#//1.1 特殊变量VPATH(make在当前目录找不到时，到其指定的目录寻找)
-#//1.2 关键字vapth（示例：vpath %.h ../headers）
-#//1.3 "-I"或"--include-dir"参数，那么make就会在这个参数所指定的目录下去寻找
-VPATH  = $(TOPDIR)
-VPATH += $(TOPDIR)/include
-
-
-#//2. 目标文件
-#//2.1 内嵌函数：1. wildcard 获取匹配模式文件名
-#//              2. patsubst 模式替换函数(语法：$(patsubst PATTERN,REPLACEMENT,TEXT))
-#//              3. foreach  循环(语法：$(foreach VAR,LIST,TEXT))
-FODIRS := $(abspath .soln)
-FODIRS += $(abspath $(shell find .git/ -maxdepth 2 -type d))
-DIRS = $(abspath $(shell find . -maxdepth 3 -type d))
-DIRS := $(filter-out $(FODIRS), $(DIRS))
-SRSC := $(foreach dir,$(DIRS),$(wildcard $(dir)/*.cpp))
-OBJS := $(patsubst %.cpp, %.o, $(SRSC))
-
-#//3. 编译链接
-CROSS = 
-CC = $(CROSS)gcc  
-CXX = $(CROSS)g++
-RM = rm -rf
-DEBUG = -g -O2
-VERSION = 1.0.0.0  
-TARGET = Foundation.$(VERSION)  
-
-#编译选项
-CFLAGS := -c
-
-.PHONY: all target install uninstall clean distclean
-$(TARGET) : $(OBJS)
-	$(CXX) $^ -o $@ -lpthread
-  
-$(OBJS):%.o : %.cpp
-	$(CXX) $(CFLAGS) $< -o $@
-  
+.PHONY : clean
 clean:
-	$(RM) $(TARGET) $(OBJS) 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	rm -rf $(BUILD_DIR) $(TARGET)
 
 
 
