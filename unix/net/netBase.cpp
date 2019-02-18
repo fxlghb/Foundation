@@ -1,4 +1,9 @@
 #include "netBase.h"
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/socket.h>
+
 
 #define CPU_VENDOR_OS    "FUXL"
 
@@ -143,6 +148,121 @@ ssize_t netBase::readLine(int fd, void* vptr, size_t maxLen)
 
 
 
+
+netSocket::netSocket():m_sockfd(-1),m_family(-1)
+{
+}
+
+/*
+* 	family2?那y:
+*				AF_INET   IPv4D-辰谷
+*				AF_INET6  IPv6D-辰谷
+*				AF_LOCAL  Unix車辰D-辰谷
+*				AF_ROUTE  ?﹞車谷足℅?車℅?
+*				AF_KEY    ?邦??足℅?車℅?
+*  	type 2?那y㏒o
+*				SOCK_STREAM		℅??迆芍¯足℅?車℅?
+*				SOCK_DGRAM		那y?Y㊣“足℅?車℅?
+*				SOCK_SEQPACKET	車DD辰﹞?℅谷足℅?車℅?
+*				SOCK_RAW		?-那?足℅?車℅?
+*	protocol2?那y:
+*				IPPROTO_CP		TCP∩?那?D-辰谷
+*				IPPROTO_UDP		UDP∩?那?D-辰谷
+*				IPPROTO_SCTP	SCTP∩?那?D-辰谷
+*/
+int netSocket::socket(int family, int type, int protocol)
+{
+	m_sockfd = socket(family, type, protocol);//那∫～邦﹞米??-1
+	if(m_sockfd < 0)
+	{
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
+		return -1;
+	}
+
+	m_family = family;
+	return m_sockfd;
+}
+
+int netSocket::accept(int socket, struct sockaddr *address,socklen_t *address_len)
+{
+
+}
+
+int netSocket::bind(const struct sockaddr *address,socklen_t address_len)
+{
+	if(m_sockfd < 0)
+	{
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__file__,__func__,__LINE__,m_sockfd);
+		return -1;
+	}
+
+	int ret = bind(m_sockfd, address, address_len);
+	if(ret < 0)
+	{
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
+		return -1;
+	}
+	return 0;
+}
+
+
+int netSocket::connect(const struct sockaddr *address,socklen_t address_len)
+{
+	if(m_sockfd < 0)
+	{
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__file__,__func__,__LINE__,m_sockfd);
+		return -1;
+	}
+
+	int ret = connect(m_sockfd, address, address_len);
+	if(ret < 0)
+	{
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
+		return -1;
+	}
+	return 0;
+}
+
+int netSocket::listen(int backlog)
+{
+	if(m_sockfd < 0)
+	{
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__file__,__func__,__LINE__,m_sockfd);
+		return -1;
+	}
+
+	int ret = listen(m_sockfd, backlog);
+	if(ret < 0)
+	{
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
+		return -1;
+	}
+	return 0;
+}
+
+/
+* how那y?Y㏒o
+*			SHUT_RD		 
+*			SHUT_WR
+*			SHUT_RDWR
+*/
+int netSocket::shutdown(int how)
+{
+	if(m_sockfd < 0)
+	{
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__file__,__func__,__LINE__,m_sockfd);
+		return -1;
+	}
+
+	int ret = shutdown(m_sockfd, how);
+	if(ret < 0)
+	{
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
+		return -1;
+	}
+	return 0;
+
+}
 
 
 

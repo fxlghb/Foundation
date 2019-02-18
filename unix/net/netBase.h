@@ -13,6 +13,27 @@
 *	int  inet_aton(const char *strptr, struct in_addr *addptr);
 *	int  inet_pton(int family, const char *src, void *dst);
 *	const char *inet_ntop(int family, const void *src, char *dst, socklen_t cnt);
+*3. sys/socket.h
+*	int socket(int family, int type, int protocol=0);
+*	int accept(int socket, struct sockaddr *address,socklen_t *address_len);
+*	int bind(int socket, const struct sockaddr *address,socklen_t address_len);
+*	int connect(int socket, const struct sockaddr *address,socklen_t address_len);
+*	int listen(int socket, int backlog);
+*	int shutdown(int socket, int how);
+*	
+*	int getsockopt(int socket, int level, int option_name,void *option_value, socklen_t *option_len);
+*	int setsockopt(int socket, int level, int option_name,const void *option_value, socklen_t option_len);
+*	int getpeername(int socket, struct sockaddr *address,socklen_t *address_len);
+*	int getsockname(int socket, struct sockaddr *address,socklen_t *address_len);
+*	int socketpair(int domain, int type, int protocol,int socket_vector[2]);
+*	
+*	ssize_t recv(int socket, void *buffer, size_t length, int flags);
+*	ssize_t recvfrom(int socket, void *buffer, size_t length,int flags, struct sockaddr *address, socklen_t *address_len);
+*	ssize_t recvmsg(int socket, struct msghdr *message, int flags);
+*	ssize_t send(int socket, const void *message, size_t length, int flags);
+*	ssize_t sendmsg(int socket, const struct msghdr *message, int flags);
+*	ssize_t sendto(int socket, const void *message, size_t length, int flags,const struct sockaddr *dest_addr, socklen_t dest_len);
+*	
 */
 #include <stdio.h>
 #include <unistd.h>
@@ -41,6 +62,39 @@ public:
 };
 
 
+class netSocket
+{
+public:
+	netSocket();
+	~netSocket(){};
+
+	int socket(int family, int type, int protocol=0);
+	int accept(struct sockaddr *address,socklen_t *address_len);
+	int bind(const struct sockaddr *address,socklen_t address_len);
+	int connect(const struct sockaddr *address,socklen_t address_len);
+	int listen(int backlog);
+	int shutdown(int how);
+	
+	int getsockopt(int socket, int level, int option_name,void *option_value, socklen_t *option_len);
+	int setsockopt(int socket, int level, int option_name,const void *option_value, socklen_t option_len);
+
+	int getpeername(int socket, struct sockaddr *address,socklen_t *address_len);
+	int getsockname(int socket, struct sockaddr *address,socklen_t *address_len);
+	int socketpair(int domain, int type, int protocol,int socket_vector[2]);
+
+
+	//ssize_t recv(int socket, void *buffer, size_t length, int flags);
+	//ssize_t recvfrom(int socket, void *buffer, size_t length,int flags, struct sockaddr *address, socklen_t *address_len);
+	//ssize_t recvmsg(int socket, struct msghdr *message, int flags);
+	//ssize_t send(int socket, const void *message, size_t length, int flags);
+	//ssize_t sendmsg(int socket, const struct msghdr *message, int flags);
+	//ssize_t sendto(int socket, const void *message, size_t length, int flags,const struct sockaddr *dest_addr, socklen_t dest_len);
+
+private:
+	int m_sockfd;
+	int m_family;
+
+}
 
 
 
