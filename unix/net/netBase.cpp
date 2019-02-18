@@ -155,24 +155,24 @@ netSocket::netSocket():m_sockfd(-1),m_family(-1)
 
 /*
 * 	family2?那y:
-*				AF_INET   IPv4D-辰谷
-*				AF_INET6  IPv6D-辰谷
-*				AF_LOCAL  Unix車辰D-辰谷
-*				AF_ROUTE  ?﹞車谷足℅?車℅?
-*				AF_KEY    ?邦??足℅?車℅?
-*  	type 2?那y㏒o
-*				SOCK_STREAM		℅??迆芍¯足℅?車℅?
-*				SOCK_DGRAM		那y?Y㊣“足℅?車℅?
-*				SOCK_SEQPACKET	車DD辰﹞?℅谷足℅?車℅?
-*				SOCK_RAW		?-那?足℅?車℅?
-*	protocol2?那y:
-*				IPPROTO_CP		TCP∩?那?D-辰谷
-*				IPPROTO_UDP		UDP∩?那?D-辰谷
-*				IPPROTO_SCTP	SCTP∩?那?D-辰谷
+*				AF_INET   
+*				AF_INET6  
+*				AF_LOCAL  
+*				AF_ROUTE  
+*				AF_KEY    
+*  	type
+*				SOCK_STREAM		
+*				SOCK_DGRAM		
+*				SOCK_SEQPACKET	
+*				SOCK_RAW		
+*	protocol
+*				IPPROTO_CP		
+*				IPPROTO_UDP		
+*				IPPROTO_SCTP	
 */
 int netSocket::socket(int family, int type, int protocol)
 {
-	m_sockfd = socket(family, type, protocol);//那∫～邦﹞米??-1
+	m_sockfd = socket(family, type, protocol);
 	if(m_sockfd < 0)
 	{
 		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
@@ -188,6 +188,14 @@ int netSocket::accept(int socket, struct sockaddr *address,socklen_t *address_le
 
 }
 
+/*
+struct sockaddr_in{
+	sa_family_t     sin_family;
+	in_port_t       sin_port;
+	struct in_addr  sin_addr;
+	unsigned char   sin_zero[8];
+};
+*/
 int netSocket::bind(const struct sockaddr *address,socklen_t address_len)
 {
 	if(m_sockfd < 0)
@@ -241,7 +249,7 @@ int netSocket::listen(int backlog)
 }
 
 /
-* how那y?Y㏒o
+* how
 *			SHUT_RD		 
 *			SHUT_WR
 *			SHUT_RDWR
@@ -265,6 +273,31 @@ int netSocket::shutdown(int how)
 }
 
 
+int netSocket::getSockIp(std::string &ip)
+{
+	if(m_sockfd < 0)
+	{
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__file__,__func__,__LINE__,m_sockfd);
+		return -1;
+	}
+
+	struct sockaddr_in addr; 
+	socklen_t len = sizeof(struct sockaddr_in);
+	int ret = getsockname(m_sockfd, (struct sockaddr*)addr, &len);
+	if(ret < 0)
+	{
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
+		return -1;
+	}
+
+	/char *inet_ntoa(struct in_addr in);
+	ip = inet_ntoa(addr.sin_addr);
+}
+
+int netSocket::getSockPort(int &port)
+{
+
+}
 
 
 

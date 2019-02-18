@@ -80,6 +80,10 @@ public:
 
 	int getpeername(int socket, struct sockaddr *address,socklen_t *address_len);
 	int getsockname(int socket, struct sockaddr *address,socklen_t *address_len);
+
+	int getSockIp(std::string &ip);
+	int getSockPort(int &port);
+	
 	int socketpair(int domain, int type, int protocol,int socket_vector[2]);
 
 
