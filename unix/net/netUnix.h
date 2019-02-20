@@ -13,6 +13,9 @@ class netUnix
 public:
 	netUnix();
 	~netUnix();
+	int net_unlink();
+	int net_socket();
+	int net_bind();
 
 private:
 	int m_sockfd;

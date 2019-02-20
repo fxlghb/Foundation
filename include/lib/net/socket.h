@@ -16,10 +16,6 @@ struct sockproto {
 };
 
 
-struct sockaddr_storage{
-	sa_family_t 	ss_family;
-}
-
 
 //type
 #define SOCK_STREAM 	1				/* stream socket */
@@ -149,6 +145,53 @@ struct sockaddr_in {
 	struct in_addr 	sin_addr;
 	char			sin_zero[8];
 };
+
+struct in6_addr{
+	uint8_t s6_addr[16];
+};
+
+struct sockaddr_in6{
+	uint8_t 		sin6_len;
+	sa_family_t 	sin6_family;
+	in_port_t		sin6_port;
+
+	uint32_t 		sin6_flowinfo;
+	struct in6_addr sin6_addr;
+	uint32_t		sin6_scope_id;
+}
+
+struct sockaddr_storage{
+	uint8_t 		ss_len;
+	sa_family_t 	ss_family;
+}
+
+#define _SS_MAXSIZE	   128U
+#define _SS_ALIGNSIZE   (sizeof(__int64_t))
+#define _SS_PAD1SIZE    (_SS_ALIGNSIZE - sizeof(unsigned char) - \
+						   sizeof(sa_family_t))
+#define _SS_PAD2SIZE    (_SS_MAXSIZE - sizeof(unsigned char) - \
+							   sizeof(sa_family_t) - _SS_PAD1SIZE - _SS_ALIGNSIZE)
+ 
+struct sockaddr_storage {
+	unsigned char   ss_len;		   /* address length */
+	sa_family_t	   ss_family;	   /* address family */
+	char 		   __ss_pad1[_SS_PAD1SIZE];
+	__int64_t	   __ss_align;	   /* force desired struct alignment */
+	char 		   __ss_pad2[_SS_PAD2SIZE];
+};
+
+struct sockaddr_dl {
+	u_char  sdl_len; 	   /* Total length of sockaddr */
+	u_char  sdl_family;	   /* AF_LINK */
+	u_short sdl_index;	   /* if != 0, system given index for interface */
+	u_char  sdl_type;	   /* interface type */
+	u_char  sdl_nlen;	   /* interface name length, no trailing 0 reqd. */
+	u_char  sdl_alen;	   /* link level address length */
+	u_char  sdl_slen;	   /* link layer selector length */
+	char    sdl_data[46];   /* minimum work area, can be larger;
+	contains both if name and ll address */
+};
+
 
 
 uint32_t		htonl(uint32_t);
@@ -349,6 +392,47 @@ uint16_t		ntohs(uint16_t);
 
 
 
+
+struct sockaddr_un {
+		   unsigned char   sun_len; 	   /* sockaddr len including null */
+		   sa_family_t	   sun_family;	   /* AF_UNIX */
+		   char    sun_path[104];		   /* path name (gag) */
+};
+
+
+
+#include <sys/select.h>
+
+struct timeval{
+	long    tv_sec;      //Seconds. 
+	long    tv_usec;     //Microseconds. Œ¢√Ó
+};
+
+struct timeval{
+	time_t  tv_sec;    //Seconds. 
+	long    tv_nsec;   //Nanoseconds.ƒ…√Î
+}
+
+void FD_SET(int fd, fd_set *fdset);
+void FD_CLR(int fd, fd_set *fdset);
+void FD_ZERO(fd_set *fdset);
+int  FD_ISSET(int, fd_set *fdset);
+
+
+int select(int maxfdpl, fd_set *readset, fd_set *writeset, fd_set *exceptset, struct timeval *timeout);
+int  pselect(int, fd_set *readset, fd_set *writeset, fd_set *exceptset, const struct timespec *timeout, const sigset_t *sigmask);
+
+
+
+#include <poll.h>
+
+struct  pollfd{
+	int         fd;        //the following descriptor being polled
+	short int   events;    //the input event flags (see below)
+	short int   revents;   //the output event flags (see below)
+}
+
+int   poll(struct pollfd *fdarray, unsigned long nfds, int timeout_usec);
 
 
 #endif

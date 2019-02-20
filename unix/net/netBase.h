@@ -35,10 +35,11 @@
 *	ssize_t sendto(int socket, const void *message, size_t length, int flags,const struct sockaddr *dest_addr, socklen_t dest_len);
 *	
 */
-#include <stdio.h>
+#include <cstdio>
 #include <unistd.h>
-#include <string.h>
-#include <errno.h>
+#include <string>
+#include <cstring>
+#include <cerrno>
 #include <arpa/inet.h>
 #include <netinet/in.h> //网际套接字结构体
 #include <sys/socket.h> //通用套接字结构体
@@ -73,32 +74,20 @@ public:
 	int bind(const struct sockaddr *address,socklen_t address_len);
 	int connect(const struct sockaddr *address,socklen_t address_len);
 	int listen(int backlog);
-	int shutdown(int how);
-	
-	int getsockopt(int socket, int level, int option_name,void *option_value, socklen_t *option_len);
-	int setsockopt(int socket, int level, int option_name,const void *option_value, socklen_t option_len);
+	int shutDown(int how);
 
-	int getpeername(int socket, struct sockaddr *address,socklen_t *address_len);
-	int getsockname(int socket, struct sockaddr *address,socklen_t *address_len);
 
-	int getSockIp(std::string &ip);
+	int getPeerPort(int &port);
+	int getPeerIp(std::string &ip);
+	int getSockFamily(int &family);
 	int getSockPort(int &port);
-	
-	int socketpair(int domain, int type, int protocol,int socket_vector[2]);
-
-
-	//ssize_t recv(int socket, void *buffer, size_t length, int flags);
-	//ssize_t recvfrom(int socket, void *buffer, size_t length,int flags, struct sockaddr *address, socklen_t *address_len);
-	//ssize_t recvmsg(int socket, struct msghdr *message, int flags);
-	//ssize_t send(int socket, const void *message, size_t length, int flags);
-	//ssize_t sendmsg(int socket, const struct msghdr *message, int flags);
-	//ssize_t sendto(int socket, const void *message, size_t length, int flags,const struct sockaddr *dest_addr, socklen_t dest_len);
+	int getSockIp(std::string &ip);
 
 private:
 	int m_sockfd;
 	int m_family;
 
-}
+};
 
 
 

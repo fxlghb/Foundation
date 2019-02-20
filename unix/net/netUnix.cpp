@@ -1,6 +1,7 @@
 #include "netUnix.h"
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 
 
 netUnix::netUnix()
@@ -64,18 +65,7 @@ int netUnix::net_socket()
 
 int netUnix::net_bind()
 {
-	int len;
-	struct sockaddr_un addr;
-
-	if(m_path.empty())
-		return -1;
-
-	memset(&addr, 0, sizeof(struct sockaddr_un));
-	addr.sun_family = AF_LOCAL;
-	strncpy(addr.sun_path, m_path.c_str(), m_path, sizeof(addr.sun_path)-1);
-	bind();
-	
-	len = sizeof(struct sockaddr_un);
+	return 0;
 }
 
 

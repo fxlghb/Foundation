@@ -33,7 +33,8 @@ int netBase::testEndian()
 	return 0;
 }
 
-char *netBase::sock_ntop(const struct sockaddr *sockaddr, socklen_t addrlen)
+
+char *netBase::inet_ntop(const struct sockaddr *sockaddr, socklen_t addrlen)
 {
 	char portstr[8];
 	static char str[128];     //unix domain is largst
@@ -175,7 +176,7 @@ int netSocket::socket(int family, int type, int protocol)
 	m_sockfd = socket(family, type, protocol);
 	if(m_sockfd < 0)
 	{
-		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__FILE__,__func__,__LINE__,errno,strerror(errno));
 		return -1;
 	}
 
@@ -183,8 +184,21 @@ int netSocket::socket(int family, int type, int protocol)
 	return m_sockfd;
 }
 
-int netSocket::accept(int socket, struct sockaddr *address,socklen_t *address_len)
+int netSocket::accept(struct sockaddr *address,socklen_t *address_len)
 {
+	if(m_sockfd < 0)
+	{
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__FILE__,__func__,__LINE__,m_sockfd);
+		return -1;
+	}
+
+	int sockfd = ::accept(m_sockfd, address, address_len);
+	if(sockfd < 0)
+	{
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__FILE__,__func__,__LINE__,errno,strerror(errno));
+		return -1;
+	}
+	return sockfd;
 
 }
 
@@ -200,14 +214,14 @@ int netSocket::bind(const struct sockaddr *address,socklen_t address_len)
 {
 	if(m_sockfd < 0)
 	{
-		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__file__,__func__,__LINE__,m_sockfd);
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__FILE__,__func__,__LINE__,m_sockfd);
 		return -1;
 	}
 
-	int ret = bind(m_sockfd, address, address_len);
+	int ret = ::bind(m_sockfd, address, address_len);
 	if(ret < 0)
 	{
-		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__FILE__,__func__,__LINE__,errno,strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -218,14 +232,14 @@ int netSocket::connect(const struct sockaddr *address,socklen_t address_len)
 {
 	if(m_sockfd < 0)
 	{
-		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__file__,__func__,__LINE__,m_sockfd);
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__FILE__,__func__,__LINE__,m_sockfd);
 		return -1;
 	}
 
-	int ret = connect(m_sockfd, address, address_len);
+	int ret = ::connect(m_sockfd, address, address_len);
 	if(ret < 0)
 	{
-		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__FILE__,__func__,__LINE__,errno,strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -235,37 +249,31 @@ int netSocket::listen(int backlog)
 {
 	if(m_sockfd < 0)
 	{
-		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__file__,__func__,__LINE__,m_sockfd);
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__FILE__,__func__,__LINE__,m_sockfd);
 		return -1;
 	}
 
-	int ret = listen(m_sockfd, backlog);
+	int ret = ::listen(m_sockfd, backlog);
 	if(ret < 0)
 	{
-		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__FILE__,__func__,__LINE__,errno,strerror(errno));
 		return -1;
 	}
 	return 0;
 }
 
-/
-* how
-*			SHUT_RD		 
-*			SHUT_WR
-*			SHUT_RDWR
-*/
-int netSocket::shutdown(int how)
+int netSocket::shutDown(int how)
 {
 	if(m_sockfd < 0)
 	{
-		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__file__,__func__,__LINE__,m_sockfd);
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__FILE__,__func__,__LINE__,m_sockfd);
 		return -1;
 	}
 
 	int ret = shutdown(m_sockfd, how);
 	if(ret < 0)
 	{
-		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__FILE__,__func__,__LINE__,errno,strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -277,28 +285,106 @@ int netSocket::getSockIp(std::string &ip)
 {
 	if(m_sockfd < 0)
 	{
-		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__file__,__func__,__LINE__,m_sockfd);
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__FILE__,__func__,__LINE__,m_sockfd);
 		return -1;
 	}
 
 	struct sockaddr_in addr; 
 	socklen_t len = sizeof(struct sockaddr_in);
-	int ret = getsockname(m_sockfd, (struct sockaddr*)addr, &len);
+	int ret = getsockname(m_sockfd, (struct sockaddr*)&addr, &len);
 	if(ret < 0)
 	{
-		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__file__,__func__,__LINE__,errno,strerror(errno));
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__FILE__,__func__,__LINE__,errno,strerror(errno));
 		return -1;
 	}
 
-	/char *inet_ntoa(struct in_addr in);
 	ip = inet_ntoa(addr.sin_addr);
+	return 0;
 }
 
 int netSocket::getSockPort(int &port)
 {
+	if(m_sockfd < 0)
+	{
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__FILE__,__func__,__LINE__,m_sockfd);
+		return -1;
+	}
 
+	struct sockaddr_in addr; 
+	socklen_t len = sizeof(struct sockaddr_in);
+	int ret = getsockname(m_sockfd, (struct sockaddr*)&addr, &len);
+	if(ret < 0)
+	{
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__FILE__,__func__,__LINE__,errno,strerror(errno));
+		return -1;
+	}
+
+	port = addr.sin_port;
+	return 0;
 }
 
+int netSocket::getSockFamily(int &family)
+{
+	if(m_sockfd < 0)
+	{
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__FILE__,__func__,__LINE__,m_sockfd);
+		return -1;
+	}
+
+	struct sockaddr_storage addr; 
+	socklen_t len;
+	int ret = getsockname(m_sockfd, (struct sockaddr*)&addr, &len);
+	if(ret < 0)
+	{
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__FILE__,__func__,__LINE__,errno,strerror(errno));
+		return -1;
+	}
+
+	family = addr.ss_family;
+	return 0;
+}
+
+int netSocket::getPeerIp(std::string &ip)
+{
+	if(m_sockfd < 0)
+	{
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__FILE__,__func__,__LINE__,m_sockfd);
+		return -1;
+	}
+
+	struct sockaddr_in addr; 
+	socklen_t len = sizeof(struct sockaddr_in);
+	int ret = getpeername(m_sockfd, (struct sockaddr*)&addr, &len);
+	if(ret < 0)
+	{
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__FILE__,__func__,__LINE__,errno,strerror(errno));
+		return -1;
+	}
+
+	ip = inet_ntoa(addr.sin_addr);
+	return 0;
+}
+
+int netSocket::getPeerPort(int &port)
+{
+	if(m_sockfd < 0)
+	{
+		printf("[DEBUG]%s %s %d m_sockfd=%d\n",__FILE__,__func__,__LINE__,m_sockfd);
+		return -1;
+	}
+
+	struct sockaddr_in addr; 
+	socklen_t len = sizeof(struct sockaddr_in);
+	int ret = getpeername(m_sockfd, (struct sockaddr*)&addr, &len);
+	if(ret < 0)
+	{
+		printf("[DEBUG]%s %s %d errno[%d]:%s\n",__FILE__,__func__,__LINE__,errno,strerror(errno));
+		return -1;
+	}
+
+	port = addr.sin_port;
+	return 0;
+}
 
 
 
